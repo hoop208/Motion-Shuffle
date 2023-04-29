@@ -80,7 +80,7 @@ class ShuffleLayout : MotionLayout {
 //        startSet.clone(endSet)
         currentData = newDataList
         initShuffleItems(this,newDataList)
-        val maxCount = maxOf(preData.size, currentData.size)
+        val maxCount = maxOf(preData.size, currentData.size).coerceAtLeast(childCount)
         updateConstraintSet(maxCount,preData,currentData, startSet)
         updateConstraintSet(maxCount,currentData,preData, endSet)
         if(preData.isNotEmpty()&&animate){
@@ -128,24 +128,42 @@ class ShuffleLayout : MotionLayout {
             val data = dataList.getOrNull(index)
             val shuffleId = getIdByPosition(index)
             if(data==null){
-                val deltaData = deltaList[index]
-                val nodeWidth = deltaData.right - deltaData.left
-                val nodeHeight = deltaData.bottom - deltaData.top
-                constraintSet.setColorValue(shuffleId, "BackgroundColor", deltaData.bgColor)
-                constraintSet.connect(
-                    shuffleId,
-                    ConstraintSet.START,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.START)
-                constraintSet.connect(
-                    shuffleId,
-                    ConstraintSet.TOP,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.TOP)
-                constraintSet.constrainWidth(shuffleId,0)
-                constraintSet.constrainHeight(shuffleId,0)
-                constraintSet.setMargin(shuffleId, ConstraintSet.START, deltaData.left+nodeWidth/2)
-                constraintSet.setMargin(shuffleId, ConstraintSet.TOP, deltaData.top+nodeHeight/2)
+                val deltaData = deltaList.getOrNull(index)
+                if(deltaData==null){
+                    constraintSet.setColorValue(shuffleId, "BackgroundColor", Color.TRANSPARENT)
+                    constraintSet.connect(
+                        shuffleId,
+                        ConstraintSet.START,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.START)
+                    constraintSet.connect(
+                        shuffleId,
+                        ConstraintSet.TOP,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.TOP)
+                    constraintSet.constrainWidth(shuffleId,0)
+                    constraintSet.constrainHeight(shuffleId,0)
+                    constraintSet.setMargin(shuffleId, ConstraintSet.START, 0)
+                    constraintSet.setMargin(shuffleId, ConstraintSet.TOP, 0)
+                }else{
+                    val nodeWidth = deltaData.right - deltaData.left
+                    val nodeHeight = deltaData.bottom - deltaData.top
+                    constraintSet.setColorValue(shuffleId, "BackgroundColor", deltaData.bgColor)
+                    constraintSet.connect(
+                        shuffleId,
+                        ConstraintSet.START,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.START)
+                    constraintSet.connect(
+                        shuffleId,
+                        ConstraintSet.TOP,
+                        ConstraintSet.PARENT_ID,
+                        ConstraintSet.TOP)
+                    constraintSet.constrainWidth(shuffleId,0)
+                    constraintSet.constrainHeight(shuffleId,0)
+                    constraintSet.setMargin(shuffleId, ConstraintSet.START, deltaData.left+nodeWidth/2)
+                    constraintSet.setMargin(shuffleId, ConstraintSet.TOP, deltaData.top+nodeHeight/2)
+                }
             }else{
                 val nodeWidth = data.right - data.left
                 val nodeHeight = data.bottom - data.top
