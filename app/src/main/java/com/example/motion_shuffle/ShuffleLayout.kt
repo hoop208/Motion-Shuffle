@@ -81,8 +81,8 @@ class ShuffleLayout : MotionLayout {
         currentData = newDataList
         initShuffleItems(this,newDataList)
         val maxCount = maxOf(preData.size, currentData.size)
-        updateConstraintSet(maxCount,preData, startSet)
-        updateConstraintSet(maxCount,currentData, endSet)
+        updateConstraintSet(maxCount,preData,currentData, startSet)
+        updateConstraintSet(maxCount,currentData,preData, endSet)
         if(preData.isNotEmpty()&&animate){
             initScene()
             animateWidget()
@@ -118,7 +118,7 @@ class ShuffleLayout : MotionLayout {
         }
     }
 
-    private fun updateConstraintSet(maxCount:Int,dataList: List<ShuffleData>, constraintSet: ConstraintSet) {
+    private fun updateConstraintSet(maxCount:Int,dataList: List<ShuffleData>,deltaList:List<ShuffleData>, constraintSet: ConstraintSet) {
         constraintSet.clone(this)
         val count = dataList.size
         if (count == 0) {
@@ -128,7 +128,10 @@ class ShuffleLayout : MotionLayout {
             val data = dataList.getOrNull(index)
             val shuffleId = getIdByPosition(index)
             if(data==null){
-                constraintSet.setColorValue(shuffleId, "BackgroundColor", Color.TRANSPARENT)
+                val deltaData = deltaList[index]
+                val nodeWidth = deltaData.right - deltaData.left
+                val nodeHeight = deltaData.bottom - deltaData.top
+                constraintSet.setColorValue(shuffleId, "BackgroundColor", deltaData.bgColor)
                 constraintSet.connect(
                     shuffleId,
                     ConstraintSet.START,
@@ -141,8 +144,8 @@ class ShuffleLayout : MotionLayout {
                     ConstraintSet.TOP)
                 constraintSet.constrainWidth(shuffleId,0)
                 constraintSet.constrainHeight(shuffleId,0)
-                constraintSet.setMargin(shuffleId, ConstraintSet.START, width/2)
-                constraintSet.setMargin(shuffleId, ConstraintSet.TOP, height/2)
+                constraintSet.setMargin(shuffleId, ConstraintSet.START, deltaData.left+nodeWidth/2)
+                constraintSet.setMargin(shuffleId, ConstraintSet.TOP, deltaData.top+nodeHeight/2)
             }else{
                 val nodeWidth = data.right - data.left
                 val nodeHeight = data.bottom - data.top
